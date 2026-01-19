@@ -1,0 +1,209 @@
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- // 1. CRIAÇÃO DA SCREEN GUI PRINCIPAL //
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PainelRGB"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- // 2. A BOLINHA FLUTUANTE (TOGGLE) //
+local ToggleBall = Instance.new("ImageButton")
+ToggleBall.Name = "ToggleBall"
+ToggleBall.Size = UDim2.new(0, 50, 0, 50)
+ToggleBall.Position = UDim2.new(0.1, 0, 0.1, 0) -- Posição inicial
+ToggleBall.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+ToggleBall.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ToggleBall.BorderSizePixel = 0
+ToggleBall.Parent = ScreenGui
+
+local BallCorner = Instance.new("UICorner")
+BallCorner.CornerRadius = UDim.new(1, 0) -- Deixa redondo
+BallCorner.Parent = ToggleBall
+
+local BallStroke = Instance.new("UIStroke") -- Borda da bolinha
+BallStroke.Thickness = 2
+BallStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+BallStroke.Parent = ToggleBall
+
+-- Ícone ou Texto dentro da bola (Opcional)
+local BallText = Instance.new("TextLabel")
+BallText.Size = UDim2.new(1,0,1,0)
+BallText.BackgroundTransparency = 1
+BallText.Text = "MENU"
+BallText.TextColor3 = Color3.fromRGB(255,255,255)
+BallText.Font = Enum.Font.GothamBold
+BallText.TextSize = 10
+BallText.Parent = ToggleBall
+
+-- // 3. O PAINEL PRINCIPAL //
+local MainPanel = Instance.new("Frame")
+MainPanel.Name = "MainPanel"
+MainPanel.Size = UDim2.new(0, 450, 0, 300)
+MainPanel.Position = UDim2.new(0.5, -225, 0.5, -150)
+MainPanel.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainPanel.Visible = false -- Começa escondido
+MainPanel.Parent = ScreenGui
+
+local PanelCorner = Instance.new("UICorner")
+PanelCorner.CornerRadius = UDim.new(0, 6)
+PanelCorner.Parent = MainPanel
+
+-- Borda RGB do Painel
+local PanelStroke = Instance.new("UIStroke")
+PanelStroke.Thickness = 3
+PanelStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+PanelStroke.Parent = MainPanel
+
+-- Título do Painel
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundTransparency = 1
+Title.Text = "PAINEL DE CONTROLE"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBlack
+Title.TextSize = 14
+Title.Parent = MainPanel
+
+-- Linha Horizontal
+local Line = Instance.new("Frame")
+Line.Size = UDim2.new(1, -20, 0, 1) -- Um pouco menor que a largura total
+Line.Position = UDim2.new(0, 10, 0, 35)
+Line.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+Line.BorderSizePixel = 0
+Line.Parent = MainPanel
+
+-- // 4. SISTEMA DE ABAS (BOTÕES) //
+local TabContainer = Instance.new("Frame")
+TabContainer.Size = UDim2.new(0, 100, 1, -50)
+TabContainer.Position = UDim2.new(0, 10, 0, 45)
+TabContainer.BackgroundTransparency = 1
+TabContainer.Parent = MainPanel
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Parent = TabContainer
+
+-- Função para criar botões de aba
+local function createTabButton(name, order)
+    local btn = Instance.new("TextButton")
+    btn.Name = name
+    btn.Size = UDim2.new(1, 0, 0, 30)
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.Font = Enum.Font.GothamSemibold
+    btn.TextSize = 12
+    btn.LayoutOrder = order
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 4)
+    corner.Parent = btn
+    
+    btn.Parent = TabContainer
+    return btn
+end
+
+local btnMenu = createTabButton("Menu", 1)
+local btnVisual = createTabButton("Visual", 2)
+local btnAim = createTabButton("Aimlock", 3)
+local btnConfig = createTabButton("Config", 4)
+
+-- // 5. CONTEÚDO (SCROLLING FRAME) //
+local ScrollContainer = Instance.new("ScrollingFrame")
+ScrollContainer.Name = "ContentArea"
+ScrollContainer.Size = UDim2.new(1, -130, 1, -50)
+ScrollContainer.Position = UDim2.new(0, 120, 0, 45)
+ScrollContainer.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ScrollContainer.ScrollBarThickness = 4
+ScrollContainer.Parent = MainPanel
+
+local ContentCorner = Instance.new("UICorner")
+ContentCorner.CornerRadius = UDim.new(0, 4)
+ContentCorner.Parent = ScrollContainer
+
+-- Label de Exemplo dentro do Scroll
+local InfoLabel = Instance.new("TextLabel")
+InfoLabel.Size = UDim2.new(1, 0, 0, 200) -- Grande para testar o scroll
+InfoLabel.BackgroundTransparency = 1
+InfoLabel.TextYAlignment = Enum.TextYAlignment.Top
+InfoLabel.Text = "Selecione uma aba à esquerda...\n\n(Sistema de Scrolling Ativado)"
+InfoLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+InfoLabel.Font = Enum.Font.Gotham
+InfoLabel.TextSize = 14
+InfoLabel.Parent = ScrollContainer
+
+-- // 6. FUNÇÃO DE ARRASTAR (DRAG) //
+local function makeDraggable(guiObject)
+    local dragging, dragInput, dragStart, startPos
+
+    local function update(input)
+        local delta = input.Position - dragStart
+        guiObject.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+
+    guiObject.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = guiObject.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    guiObject.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
+    end)
+end
+
+makeDraggable(ToggleBall) -- A bolinha é arrastável
+makeDraggable(MainPanel)  -- O painel também (opcional)
+
+-- // 7. SISTEMA RGB (RAINBOW) //
+local function updateRGB()
+    local hue = tick() % 5 / 5 -- Ciclo de 5 segundos
+    local color = Color3.fromHSV(hue, 1, 1)
+    
+    PanelStroke.Color = color
+    BallStroke.Color = color
+    
+    -- Efeito visual nos botões selecionados poderia vir aqui
+end
+
+RunService.Heartbeat:Connect(updateRGB)
+
+-- // 8. LÓGICA DE ABRIR/FECHAR E ABAS //
+ToggleBall.MouseButton1Click:Connect(function()
+    MainPanel.Visible = not MainPanel.Visible
+end)
+
+-- Lógica simples para mudar o texto quando clica nas abas
+local function switchTab(name)
+    InfoLabel.Text = "Você está na aba: " .. name .. "\n\nAdicione seus botões de " .. name .. " aqui."
+end
+
+btnMenu.MouseButton1Click:Connect(function() switchTab("Menu") end)
+btnVisual.MouseButton1Click:Connect(function() switchTab("Visual") end)
+btnAim.MouseButton1Click:Connect(function() switchTab("Aimlock") end)
+btnConfig.MouseButton1Click:Connect(function() switchTab("Config") end)
+                                    
